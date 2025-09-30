@@ -1,0 +1,21 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/>{
+  "name": "PrepTrack - Exam Syllabus Tracker",
+  "short_name": "PrepTrack",
+  "description": "A personal tracker for SSC and Railway exam preparation.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

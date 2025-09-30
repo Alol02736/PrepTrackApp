@@ -1,0 +1,455 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepTrack - Dashboard</title>
+    <style>
+        /* CSS Variables for Theming - Improved Palette */
+        :root {
+            --bg-primary: #0f172a; /* Slightly darker for depth */
+            --bg-secondary: #1e293b;
+            --surface: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --shadow: 0 8px 20px rgba(0,0,0,0.4);
+            --radius: 14px;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        :root.light {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #f3f4f6;
+            --surface: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5567;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        /* Base & Reset Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-secondary);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .sidebar-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 10px;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .nav-link:hover {
+            background-color: var(--surface);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background-color: var(--accent);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+        }
+        
+        #theme-toggle {
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 36px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .header h2 {
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            margin-top: 6px;
+            font-size: 16px;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 30px;
+            color: var(--text-primary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            padding: 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.45);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            font-size: 26px;
+            color: var(--accent);
+        }
+
+        .card-title {
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .card-content .stat {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .card-content .sub-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 14px;
+            background-color: var(--surface);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 99px;
+            transition: width 0.6s ease-in-out;
+        }
+        
+        .quick-actions .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            margin-top: 16px;
+            border-radius: var(--radius);
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.25s;
+        }
+        
+        .quick-actions .btn:hover {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+        }
+
+        /* Quote Card Gradient */
+        .card:last-child {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #f0f9ff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                padding: 24px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 18px;
+            }
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1001;
+            }
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6"/>
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="logo">🎯</span>
+                <h1>PrepTrack</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link active">
+                    <span class="icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="syllabus.html" class="nav-link">
+                    <span class="icon">📚</span>
+                    <span>Syllabus</span>
+                </a>
+                <a href="tasks.html" class="nav-link">
+                    <span class="icon">✔️</span>
+                    <span>Task Manager</span>
+                </a>
+                <a href="timer.html" class="nav-link">
+                    <span class="icon">⏱️</span>
+                    <span>Study Timer</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <button id="theme-toggle">🌙</button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+            
+            <header class="header">
+                <div>
+                    <h2>Welcome Back!</h2>
+                    <p id="greeting-message">Let's make today productive.</p>
+                </div>
+            </header>
+
+            <section class="dashboard-grid">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📚</span>
+                        <h3 class="card-title">Syllabus Progress</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat" id="syllabus-percentage">0%</div>
+                        <p class="sub-text" id="syllabus-subtext">0 of 0 topics completed</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="syllabus-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">✔️</span>
+                        <h3 class="card-title">Tasks Due Today</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat" id="tasks-due-today">0</div>
+                        <p class="sub-text" id="tasks-subtext">pending tasks</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⏱️</span>
+                        <h3 class="card-title">Focused Study</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat" id="study-time-today">0h 0m</div>
+                        <p class="sub-text">Total study time logged today</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">💡</span>
+                        <h3 class="card-title">Quote of the Day</h3>
+                    </div>
+                    <div class="card-content">
+                        <p id="quote-text" style="font-style: italic;">"Success is the sum of small efforts, repeated day in and day out."</p>
+                        <p id="quote-author" class="sub-text" style="text-align: right; margin-top: 8px;">-- Robert Collier</p>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elements ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const greetingMessage = document.getElementById('greeting-message');
+
+            // --- Theme Toggler ---
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('light');
+                const isLight = document.documentElement.classList.contains('light');
+                themeToggle.textContent = isLight ? '🌙' : '☀️';
+            });
+            
+            // --- Mobile Menu ---
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            
+            // Close sidebar if user clicks outside of it on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                    if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                    }
+                }
+            });
+
+            // --- Dynamic Greeting ---
+            const updateGreeting = () => {
+                const now = new Date();
+                const hours = now.getHours();
+                if (hours < 12) {
+                    greetingMessage.textContent = "Good morning! Ready for a great start?";
+                } else if (hours < 18) {
+                    greetingMessage.textContent = "Good afternoon! Keep the momentum going.";
+                } else {
+                    greetingMessage.textContent = "Good evening! Time for a productive session.";
+                }
+            };
+
+            // --- MOCK DATA (to be replaced with local storage) ---
+            const mockSyllabus = { completed: 25, total: 150 };
+            const mockTasksDue = 5;
+            const mockStudyMinutes = 75;
+
+            // --- Update Dashboard UI Function ---
+            const updateDashboard = () => {
+                const syllabusPercentage = document.getElementById('syllabus-percentage');
+                const syllabusSubtext = document.getElementById('syllabus-subtext');
+                const syllabusProgressBar = document.getElementById('syllabus-progress-bar');
+                
+                const percentage = mockSyllabus.total > 0 ? ((mockSyllabus.completed / mockSyllabus.total) * 100).toFixed(0) : 0;
+                syllabusPercentage.textContent = `${percentage}%`;
+                syllabusSubtext.textContent = `${mockSyllabus.completed} of ${mockSyllabus.total} topics completed`;
+                syllabusProgressBar.style.width = `${percentage}%`;
+
+                const tasksDueToday = document.getElementById('tasks-due-today');
+                tasksDueToday.textContent = mockTasksDue;
+
+                const studyTimeToday = document.getElementById('study-time-today');
+                const hours = Math.floor(mockStudyMinutes / 60);
+                const minutes = mockStudyMinutes % 60;
+                studyTimeToday.textContent = `${hours}h ${minutes}m`;
+            };
+
+            // --- Initial Load ---
+            updateGreeting();
+            updateDashboard();
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+</body>
+</html>

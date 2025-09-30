@@ -1,0 +1,437 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepTrack - Syllabus Tracker</title>
+    <style>
+        /* CSS styles (unchanged, with additions for home icon) */
+        :root {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --surface: #374151;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --shadow: 0 8px 20px rgba(0,0,0,0.4);
+            --radius: 14px;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        :root.light {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --surface: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5567;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+        }
+
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-secondary);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+            border-right: 1px solid var(--surface);
+        }
+
+        .sidebar-header { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+        .logo { font-size:28px; color: var(--accent); font-weight:700; }
+        .sidebar-header h1 { font-size:22px; font-weight:700; }
+
+        .nav-link {
+            display:flex; align-items:center; gap:16px; padding:14px 16px;
+            border-radius: var(--radius); text-decoration:none; color:var(--text-secondary);
+            font-weight:500; margin-bottom:10px; transition: all 0.25s ease-in-out;
+        }
+        
+        .nav-link svg { width: 20px; height: 20px; }
+
+        .nav-link:hover { background-color: var(--surface); color: var(--text-primary); transform:translateX(4px); }
+        .nav-link.active { background-color: var(--accent); color:white; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+
+        .sidebar-footer { margin-top:auto; }
+        #theme-toggle { cursor:pointer; border:none; background:none; font-size:24px; }
+
+        /* Main Content */
+        .main-content { flex:1; padding:36px; overflow-y:auto; }
+        .header { margin-bottom:24px; }
+
+        /* NEW CSS FOR HOME ICON */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #home-link svg {
+            width: 28px;
+            height: 28px;
+            color: var(--text-secondary);
+            transition: color 0.2s ease-in-out;
+        }
+        #home-link:hover svg {
+            color: var(--accent);
+        }
+        /* END NEW CSS */
+
+        .header h2 { font-size:30px; font-weight:700; margin-bottom:6px; }
+        .header p { color: var(--text-secondary); font-size:16px; }
+
+        /* Search Bar Styling */
+        .syllabus-controls {
+            margin-bottom: 24px;
+        }
+        #syllabus-search {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--surface);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+        }
+        #syllabus-search::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Syllabus Styling */
+        .syllabus-container { display:flex; flex-direction:column; gap:24px; }
+        .section-card {
+            background-color: var(--bg-secondary);
+            padding:24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: opacity 0.3s;
+        }
+        
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        
+        .section-header { 
+            display:flex; justify-content:space-between; align-items:center; cursor:pointer; 
+        }
+        .section-header::after {
+            content: '▼';
+            transition: transform 0.2s;
+            font-size: 14px;
+        }
+        details[open] .section-header::after {
+            transform: rotate(180deg);
+        }
+
+        .section-header h3 { font-size:20px; font-weight:600; }
+        .section-header .progress { font-size:14px; color: var(--text-secondary); font-weight: 500;}
+        .topics { margin-top:16px; display:flex; flex-direction:column; gap:16px; }
+
+        .topic-header {
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--surface);
+            margin-bottom: 8px;
+        }
+
+        .subtopic { display:flex; align-items:center; gap:10px; padding-left:16px; }
+        .subtopic input { width:16px; height:16px; accent-color: var(--accent); cursor: pointer; }
+        .subtopic label { flex: 1; cursor: pointer; }
+        .subtopic input:checked + label { text-decoration: line-through; opacity: 0.6; }
+
+
+        /* Responsive */
+        @media(max-width:768px){
+            .app-container{ flex-direction:column; }
+            .sidebar { position:fixed; top:0; left:0; height:100%; transform:translateX(-100%); z-index:1000; }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { padding:24px; }
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6"/>
+</head>
+<body>
+<div class="app-container">
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">🎯</span>
+            <h1>PrepTrack</h1>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <span>Syllabus</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <button id="theme-toggle">🌙</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-top">
+                <h2>Syllabus Tracker</h2>
+                <a href="index.html" id="home-link" title="Return to Homepage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </a>
+            </div>
+            <p>Mark your progress topic by topic. All data is saved automatically in your browser.</p>
+        </header>
+
+        <div class="syllabus-controls">
+            <input type="text" id="syllabus-search" placeholder="🔎 Search for any topic...">
+        </div>
+
+        <div class="syllabus-container" id="syllabus-container">
+            </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. THEME & BASIC UI ---
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('light');
+                themeToggle.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+            });
+        }
+
+        // --- 2. SYLLABUS DATA ---
+        const SYLLABUS_STORAGE_KEY = 'prepTrackSyllabusData_v2'; 
+        
+        const createInitialData = () => {
+            const createSubtopics = (arr) => arr.map(title => ({ title, done: false }));
+            return [
+                {
+                    section: "Quantitative Aptitude",
+                    topics: [
+                        { name: "Arithmetic", subtopics: createSubtopics(["Digital Sum", "Percentage", "Profit & Loss", "Discount", "Simple Interest", "Compound Interest", "Ratio & Proportion", "Partnership", "Mixture", "Alligation", "Average", "Time & Work", "Pipe & Cistern", "Time & Distance", "Train", "Race & Circular Motion", "Boat & Stream"]) },
+                        { name: "Advanced Maths", subtopics: createSubtopics(["Geometry", "Mensuration 2D", "Mensuration 3D", "LCM & HCF", "Number System", "Simplification and Surds & Indices", "Algebra", "Trigonometry", "Height & Distance", "Co-ordinate Geometry"]) },
+                        { name: "Additional Topics", subtopics: createSubtopics(["Permutation & Combination", "Probability", "Statistics", "Logarithm", "Calculation"]) }
+                    ]
+                },
+                {
+                    section: "General Intelligence & Reasoning",
+                    topics: [
+                        { name: "Verbal Reasoning", subtopics: createSubtopics(["Alphabet Test", "Coding-Decoding", "Analogy & Similarity", "Odd One Out", "Letter Series", "Number Series", "Alphanumeric Series", "Blood Relation", "Syllogism", "Dictionary & Word Arrangement", "Statement & Conclusion", "Statement & Argument", "Statement & Assumption"]) },
+                        { name: "Non-Verbal Reasoning", subtopics: createSubtopics(["Clock", "Calendar", "Counting Figures", "Dice", "Cube and Cuboid", "Venn Diagram", "Mirror & Water Image", "Paper Cutting & Folding", "Embedded Figure", "Figure Completion", "Figure Series"]) },
+                        { name: "Analytical Reasoning", subtopics: createSubtopics(["Direction Sense", "Ranking Arrangement", "Sitting Arrangement", "Puzzle", "Coded Inequality", "Data Sufficiency", "Matrix", "Mathematical Operations", "Missing Number", "Course of Action", "Cause & Effect", "Decision Making", "Machine Input Output"]) }
+                    ]
+                },
+                {
+                    section: "English Language & Comprehension (SSC CGL)",
+                    topics: [
+                        { name: "Vocabulary", subtopics: createSubtopics(["Synonyms", "Antonyms", "One Word Substitution", "Idioms & Phrases", "Spelling Test"]) },
+                        { name: "Grammar", subtopics: createSubtopics(["Spot the Error", "Fill in the Blanks", "Sentence Improvement", "Active & Passive Voice", "Direct & Indirect Speech"]) },
+                        { name: "Comprehension & Composition", subtopics: createSubtopics(["Reading Comprehension (Passage)", "Cloze Test", "Para Jumbles / Sentence Rearrangement"]) }
+                    ]
+                },
+                {
+                    section: "General Awareness",
+                    topics: [
+                        { name: "History - Ancient India", subtopics: createSubtopics(["Sources of Ancient Indian History", "Prehistoric Cultures (Paleolithic, Mesolithic, Neolithic)", "Indus Valley Civilization (Major Sites, Town Planning, Society)", "Vedic Period (Rigvedic vs Later Vedic, Literature, Polity)", "The Mahajanapadas & Rise of Magadha", "Jainism (Teachings of Mahavira)", "Buddhism (Life of Buddha, Councils, Teachings)", "Foreign Invasions (Persian & Macedonian)", "The Mauryan Empire (Ashoka's Edicts, Administration)", "Post-Mauryan Period (Sunga, Kushans, Satavahanas)", "The Gupta Empire (Golden Age, Rulers, Art & Science)", "The Post-Gupta Period (Harshavardhana)"]) },
+                        { name: "History - Medieval India", subtopics: createSubtopics(["Early Medieval Period (Tripartite Struggle, Cholas)", "The Delhi Sultanate - Slave Dynasty", "The Delhi Sultanate - Khilji Dynasty", "The Delhi Sultanate - Tughlaq Dynasty", "The Delhi Sultanate - Sayyid & Lodi Dynasties", "Vijayanagar & Bahmani Kingdoms", "Bhakti Movement", "Sufi Movement", "The Mughal Empire (Babur to Aurangzeb)", "Mughal Administration, Art & Architecture", "The Maratha Empire (Shivaji & Peshwas)"]) },
+                        { name: "History - Modern India", subtopics: createSubtopics(["Advent of Europeans (Portuguese, Dutch, British, French)", "British Expansion (Battle of Plassey, Buxar)", "Economic Impact of British Rule", "Socio-Religious Reform Movements of the 19th Century", "The Revolt of 1857", "Indian National Congress - Formation & Moderate Phase", "Indian National Congress - Extremist Phase", "Partition of Bengal & Swadeshi Movement", "Gandhian Era - Early Movements (Champaran, Kheda, etc.)", "Gandhian Era - Non-Cooperation Movement", "Gandhian Era - Civil Disobedience Movement", "Gandhian Era - Quit India Movement", "Revolutionary Nationalism (Bhagat Singh, etc.)", "Constitutional Development under British Rule", "Important Governor-Generals & Viceroys", "Indian Independence Act 1947"]) },
+                        { name: "Geography - Indian", subtopics: createSubtopics(["India's Location", "Physical Features of India", "Indian River Systems", "Lakes & Waterfalls", "Climate of India (Monsoon)", "Soils of India", "Natural Vegetation", "Wildlife Sanctuaries & National Parks", "Indian Agriculture", "Major Crops in India", "Minerals Resources", "Energy Resources", "Industries in India", "Transportation", "Communication", "Indian Population", "Census 2011"]) },
+                        { name: "Geography - World", subtopics: createSubtopics(["The Universe & Solar System", "Interior of the Earth", "Rocks", "Earthquakes", "Volcanoes", "Atmosphere Composition & Layers", "Winds", "Cyclones & Anticyclones", "Hydrosphere", "Ocean Currents", "Continents", "Major Landforms"]) },
+                        { name: "Indian Polity & Constitution", subtopics: createSubtopics(["Making of the Constitution", "Constituent Assembly", "Sources of the Constitution", "Preamble", "Parts of Constitution", "Schedules of Constitution", "The Union & its Territory", "Citizenship", "Fundamental Rights (FR)", "Directive Principles (DPSP)", "Fundamental Duties (FD)", "The President", "The Vice-President", "Prime Minister & Council of Ministers", "Parliament (Lok Sabha & Rajya Sabha)", "The Supreme Court", "The High Courts", "State Governments (Governor, CM)", "Panchayati Raj", "Municipalities", "Constitutional Bodies", "Non-Constitutional Bodies", "Important Constitutional Amendments"]) },
+                        { name: "Indian Economy", subtopics: createSubtopics(["Introduction to Indian Economy", "Sectors of Economy", "Five Year Plans", "NITI Aayog", "National Income (GDP, GNP)", "Inflation", "Money", "Banking", "RBI & Monetary Policy", "Budget", "Fiscal Policy", "Taxation System in India (GST)", "Poverty", "Unemployment", "Important Government Schemes"]) },
+                        { name: "General Science - Physics", subtopics: createSubtopics(["Units & Measurements", "Motion", "Force", "Laws of Motion", "Work", "Energy", "Power", "Gravitation", "Pressure", "Properties of Matter (Elasticity)", "Heat & Thermodynamics", "Sound Waves", "Optics (Light, Mirrors, Lenses)", "Electricity", "Magnetism", "Scientific Instruments"]) },
+                        { name: "General Science - Chemistry", subtopics: createSubtopics(["Matter and its States", "Atomic Structure", "Periodic Table", "Chemical Bonding", "Acids", "Bases", "Salts", "Metals", "Non-Metals", "Carbon and its Compounds", "Chemistry in Everyday Life"]) },
+                        { name: "General Science - Biology", subtopics: createSubtopics(["Introduction & Classification", "Cell Biology", "Human Body Systems (All systems)", "Human Diseases & Causes", "Nutrition", "Vitamins & Minerals", "Plant Kingdom", "Photosynthesis", "Animal Kingdom"]) },
+                        { name: "Static GK", subtopics: createSubtopics(["First in India (Male/Female)", "First in World (Male/Female)", "Superlatives (Largest, Longest, etc.)", "Indian Classical & Folk Dances", "Major Festivals of India", "Indian Music & Gharanas", "National Awards (Bharat Ratna, etc.)", "International Awards (Nobel, etc.)", "Sports Trophies & Cups", "Sports Terminology", "Important Books & Authors", "Important Days & Dates", "International Organizations", "Headquarters of Organizations", "Basic Computer Knowledge"]) }
+                    ]
+                },
+                { 
+                    section: "Current Affairs",
+                    topics: [
+                        { name: "Monthly Current Affairs", subtopics: createSubtopics([
+                            "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+                        ])}
+                    ]
+                }
+            ];
+        };
+        
+        let syllabusData;
+
+        // --- 3. CORE LOGIC ---
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem(SYLLABUS_STORAGE_KEY);
+                syllabusData = savedData ? JSON.parse(savedData) : createInitialData();
+            } catch (e) {
+                console.error("Error loading syllabus data from localStorage:", e);
+                syllabusData = createInitialData();
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(SYLLABUS_STORAGE_KEY, JSON.stringify(syllabusData));
+            } catch (e) {
+                console.error("Error saving syllabus data to localStorage:", e);
+            }
+        }
+
+        function renderSyllabus() {
+            const container = document.getElementById('syllabus-container');
+            if (!container) return; 
+            container.innerHTML = '';
+
+            syllabusData.forEach((section, sectionIndex) => {
+                const sectionCard = document.createElement('details');
+                sectionCard.className = 'section-card';
+
+                let totalSubtopics = 0;
+                let checkedSubtopics = 0;
+                let topicsHTML = '';
+
+                section.topics.forEach((topic, topicIndex) => {
+                    topicsHTML += `<div class="topic" data-topic-name="${topic.name.toLowerCase()}"><h4 class="topic-header">${topic.name}</h4>`;
+                    topic.subtopics.forEach((subtopic, subIndex) => {
+                        totalSubtopics++;
+                        if (subtopic.done) checkedSubtopics++;
+                        
+                        const isChecked = subtopic.done ? 'checked' : '';
+                        topicsHTML += `
+                            <div class="subtopic">
+                                <input type="checkbox" id="s${sectionIndex}t${topicIndex}st${subIndex}" data-indices="${sectionIndex},${topicIndex},${subIndex}" ${isChecked}>
+                                <label for="s${sectionIndex}t${topicIndex}st${subIndex}">${subtopic.title}</label>
+                            </div>
+                        `;
+                    });
+                    topicsHTML += `</div>`;
+                });
+
+                const percent = totalSubtopics > 0 ? Math.round((checkedSubtopics / totalSubtopics) * 100) : 0;
+                sectionCard.innerHTML = `
+                    <summary class="section-header">
+                        <h3>${section.section}</h3>
+                        <span class="progress">${percent}% Complete (${checkedSubtopics}/${totalSubtopics})</span>
+                    </summary>
+                    <div class="topics">${topicsHTML}</div>
+                `;
+                container.appendChild(sectionCard);
+            });
+        }
+        
+        // --- 4. EVENT HANDLING ---
+        const container = document.getElementById('syllabus-container');
+        if (container) {
+            container.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox' && e.target.dataset.indices) {
+                    const indices = e.target.dataset.indices.split(',').map(Number);
+                    const [secIdx, topIdx, subIdx] = indices;
+                    
+                    const subtopic = syllabusData[secIdx]?.topics[topIdx]?.subtopics[subIdx];
+                    if(subtopic) {
+                        subtopic.done = e.target.checked;
+                        saveData();
+                        
+                        const sectionCard = e.target.closest('.section-card');
+                        if (sectionCard) {
+                            const allSubtopicsInSection = sectionCard.querySelectorAll('.subtopic input[type="checkbox"]');
+                            const checkedSubtopicsInSection = sectionCard.querySelectorAll('.subtopic input[type="checkbox"]:checked');
+                            
+                            const total = allSubtopicsInSection.length;
+                            const checked = checkedSubtopicsInSection.length;
+                            const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+                            const progressSpan = sectionCard.querySelector('.progress');
+                            if (progressSpan) {
+                                progressSpan.textContent = `${percent}% Complete (${checked}/${total})`;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        const searchInput = document.getElementById('syllabus-search');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+
+                document.querySelectorAll('.section-card').forEach(section => {
+                    let sectionHasMatch = false;
+                    section.querySelectorAll('.topic').forEach(topic => {
+                        let topicHasMatch = false;
+                        topic.querySelectorAll('.subtopic').forEach(subtopic => {
+                            const label = subtopic.querySelector('label');
+                            const text = label.textContent.toLowerCase();
+                            if (text.includes(query)) {
+                                subtopic.style.display = 'flex';
+                                topicHasMatch = true;
+                            } else {
+                                subtopic.style.display = 'none';
+                            }
+                        });
+                        
+                        if (topicHasMatch) {
+                            topic.style.display = 'block';
+                            sectionHasMatch = true;
+                        } else {
+                            topic.style.display = 'none';
+                        }
+                    });
+
+                    if (query) { 
+                        if (sectionHasMatch) {
+                            section.style.display = 'block';
+                            section.open = true; 
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    } else { 
+                        section.style.display = 'block';
+                        section.open = false; 
+                        section.querySelectorAll('.topic, .subtopic').forEach(el => {
+                            el.style.display = ''; 
+                        });
+                    }
+                });
+            });
+        }
+
+        // --- 5. INITIALIZATION ---
+        loadData();
+        renderSyllabus();
+    });
+</script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js');
+        });
+    }
+</script>
+</body>
+</html>
